@@ -75,8 +75,25 @@ func (p *Plugin) ListAndWatch(e *pluginapi.Empty, s pluginapi.DevicePlugin_ListA
 // Plugin can run device specific operations and instruct Kubelet
 // of the steps to make the Device available in the container
 func (p *Plugin) Allocate(ctx context.Context, r *pluginapi.AllocateRequest) (*pluginapi.AllocateResponse, error) {
-    fmt.Print("Allocate\n")
-    return nil, nil
+    fmt.Println("Allocate()")
+
+    var response pluginapi.AllocateResponse
+
+    for _, req := range r.ContainerRequests {
+        var devices []*pluginapi.DeviceSpec
+        for _, id := range req.DevicesIDs {
+            fmt.Println("Allocate id", id)
+            dev := new(pluginapi.DeviceSpec)
+            dev.HostPath = "/dev/flx0" // TODO
+            dev.ContainerPath = "/dev/flx0" // TODO
+            dev.Permissions = "rw"
+            devices = append(devices, dev)
+        }
+        response.ContainerResponses = append(response.ContainerResponses, &pluginapi.ContainerAllocateResponse{
+			Devices: devices})
+    }
+
+    return &response, nil
 }
 
 // GetDevicePluginOptions returns options to be communicated with Device Manager
