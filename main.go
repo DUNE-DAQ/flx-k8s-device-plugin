@@ -4,6 +4,7 @@ import (
     "os"
     "flag"
     "fmt"
+    "strconv"
 
     "golang.org/x/net/context"
     "github.com/golang/glog"
@@ -35,6 +36,20 @@ type Plugin struct{
 // Monitors available resource's devices and notifies Kubernetes
 func (p *Plugin) ListAndWatch(e *pluginapi.Empty, s pluginapi.DevicePlugin_ListAndWatchServer) error {
     fmt.Print("ListAndWatch()\n")
+    // Initialize with one available device
+    p.devs = append(p.devs, &pluginapi.Device{
+        ID:     "flx" + strconv.Itoa(p.counter),
+        Health: pluginapi.Healthy,
+    })
+
+    s.Send(&pluginapi.ListAndWatchResponse{Devices: p.devs})
+
+    for {
+        select {
+        case <-p.update:
+            s.Send(&pluginapi.ListAndWatchResponse{Devices: p.devs})
+        }
+    }
     return nil
 }
 
@@ -60,10 +75,6 @@ func (dp *Plugin) GetPreferredAllocation(ctx context.Context, request *pluginapi
     return nil, nil
 }
 
-//type Lister struct{ 
-//    Plugins []string
-//}
-
 func (l FLXLister) GetResourceNamespace() string {
     glog.V(3).Infof("GetResourceNamespace()")
     fmt.Print("GetResourceNamespace()\n")
@@ -81,7 +92,7 @@ func (l FLXLister) Discover(pluginListCh chan dpm.PluginNameList) {
     if _, err := os.Stat(FLXPath); err == nil {
         glog.V(3).Infof("Discovered %s", FLXPath)
         fmt.Print("Discovered ", FLXPath, "\n")
-	plugins = append(plugins, "FLX712_0")
+	plugins = append(plugins, "flx0")
     }
 
     pluginListCh <- plugins
