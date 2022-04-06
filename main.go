@@ -4,7 +4,8 @@ import (
     "os"
     "flag"
     "fmt"
-    "strconv"
+    //"strconv"
+    "strings"
 
     "golang.org/x/net/context"
     "github.com/golang/glog"
@@ -17,11 +18,16 @@ type FLXLister struct {}
 
 type message struct {}
 
-type Plugin struct{ 
-  counter int
-  devs []*pluginapi.Device
+type Plugin struct{
+  name string
   update chan message
 }
+
+const (
+    FLXPath           = "/dev/"
+    FLXName           = "flx"
+    resourceNamespace = "felix.cern"
+)
 
 // Set up resources if needed, initialize custom channels etc
 //func (p *Plugin) Start() error {
@@ -33,27 +39,41 @@ type Plugin struct{
 //    return nil
 //}
 
-// Monitors available resource's devices and notifies Kubernetes
+// ListAndWatch returns a stream of List of Devices
+// Whenever a Device state changes or a Device disappears, ListAndWatch
+// returns the new list
 func (p *Plugin) ListAndWatch(e *pluginapi.Empty, s pluginapi.DevicePlugin_ListAndWatchServer) error {
-    fmt.Print("ListAndWatch()\n")
-    // Initialize with one available device
-    p.devs = append(p.devs, &pluginapi.Device{
-        ID:     "flx" + strconv.Itoa(p.counter),
-        Health: pluginapi.Healthy,
-    })
+    fmt.Println("ListAndWatch()")
 
-    s.Send(&pluginapi.ListAndWatchResponse{Devices: p.devs})
+    var devs []*pluginapi.Device
+
+    f, _ := os.Open(FLXPath)
+    files, _ := f.Readdir(0)
+
+    for _, v := range files {
+        if strings.Contains(v.Name(), FLXName) {
+            fmt.Println(v.Name(),"contains flx")
+            devs = append(devs, &pluginapi.Device {
+                ID: v.Name(),
+                Health: pluginapi.Healthy,
+            })
+        }
+    }
+
+    s.Send(&pluginapi.ListAndWatchResponse{Devices: devs})
 
     for {
         select {
         case <-p.update:
-            s.Send(&pluginapi.ListAndWatchResponse{Devices: p.devs})
+            fmt.Println("is this ever called?")
+            s.Send(&pluginapi.ListAndWatchResponse{Devices: devs})
         }
     }
-    return nil
 }
 
-// Allocates a device requested by one of Pods
+// Allocate is called during container creation so that the Device
+// Plugin can run device specific operations and instruct Kubelet
+// of the steps to make the Device available in the container
 func (p *Plugin) Allocate(ctx context.Context, r *pluginapi.AllocateRequest) (*pluginapi.AllocateResponse, error) {
     fmt.Print("Allocate\n")
     return nil, nil
@@ -76,23 +96,22 @@ func (dp *Plugin) GetPreferredAllocation(ctx context.Context, request *pluginapi
 }
 
 func (l FLXLister) GetResourceNamespace() string {
-    glog.V(3).Infof("GetResourceNamespace()")
-    fmt.Print("GetResourceNamespace()\n")
-    return "flx.cern"
+    return resourceNamespace
 }
 
 // Discovery discovers all devices within the system. Monitors available resources.
 func (l FLXLister) Discover(pluginListCh chan dpm.PluginNameList) {
     glog.V(3).Infof("Discover()")
-    fmt.Print("Discover()\n")
+    fmt.Println("Discover()")
     var plugins = make(dpm.PluginNameList, 0)
 
-    var FLXPath = "/dev/flx0"
-
-    if _, err := os.Stat(FLXPath); err == nil {
-        glog.V(3).Infof("Discovered %s", FLXPath)
-        fmt.Print("Discovered ", FLXPath, "\n")
-	plugins = append(plugins, "flx0")
+    // Discover if there's at least flx0 
+    // (it means driver is loaded and a flx pci endpoint is present)
+    var FLXDev = FLXPath + "flx0"
+    if _, err := os.Stat(FLXDev); err == nil {
+        glog.V(3).Infof("Discovered %s", FLXDev)
+        fmt.Println("Discovered", FLXDev)
+        plugins = append(plugins, FLXName)
     }
 
     pluginListCh <- plugins
@@ -100,10 +119,9 @@ func (l FLXLister) Discover(pluginListCh chan dpm.PluginNameList) {
 
 func (l FLXLister) NewPlugin(name string) dpm.PluginInterface {
     glog.V(3).Infof("NewPlugin()")
-    fmt.Print("NewPlugin() ", name, "\n")
+    fmt.Println("NewPlugin()", name)
     return &Plugin{
-        counter: 0,
-        devs: make([]*pluginapi.Device, 0),
+        name: name,
         update: make(chan message),
     }
 }
