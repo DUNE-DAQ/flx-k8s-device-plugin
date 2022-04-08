@@ -1,0 +1,36 @@
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: felix-plugin
+  namespace: felix-test
+  labels:
+    app: felix-plugin
+spec:
+  selector:
+    matchLabels:
+      name: felix-plugin
+  template:
+    metadata:
+      labels:
+        name: felix-plugin
+    spec:
+      containers:
+      - name: felix-plugin
+        image: egamberini/flx-dev-plugin:latest
+        securityContext:
+          allowPrivilegeEscalation: false
+          #readOnlyRootFilesystem: true
+        volumeMounts:
+        - name: devfs
+          mountPath: /dev
+          #readOnly: true
+        - name: kubeletsockets
+          mountPath: /var/lib/kubelet/device-plugins
+      volumes:
+      - name: devfs
+        hostPath:
+          path: /dev
+      - name: kubeletsockets
+        hostPath:
+          path: /var/lib/kubelet/device-plugins
+
