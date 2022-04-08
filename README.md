@@ -4,6 +4,8 @@ Discovers and lists `/dev/flx*` devices. Handles allocation when `felix.cern/flx
 
 Requires access to `/dev` and `/var/lib/kubelet/device-plugins` in a K8s node.
 
+K8s Device Plugins https://kubernetes.io/docs/concepts/extend-kubernetes/compute-storage-net/device-plugins/
+
 Based on the library https://github.com/kubevirt/device-plugin-manager
 
 ### Development cheat sheet

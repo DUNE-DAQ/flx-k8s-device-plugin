@@ -1,9 +1,8 @@
 // enrico.gamberini@cern.ch April 2022
-// Copy-pasted stuff and documentation from:
-// https://github.com/kubevirt/device-plugin-manager
+// Adapted from:
 // https://github.com/kubevirt/kubernetes-device-plugins/blob/master/pkg/kvm/kvm.go
 // https://github.com/kubevirt/kubernetes-device-plugins/blob/master/pkg/pci/plugin.go
-// and more... follow the links
+// and more...
 
 package main
 
