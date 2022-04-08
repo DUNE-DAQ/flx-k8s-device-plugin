@@ -58,7 +58,8 @@ func (p *Plugin) ListAndWatch(e *pluginapi.Empty, s pluginapi.DevicePlugin_ListA
     files, _ := f.Readdir(0)
 
     for _, v := range files {
-        if strings.Contains(v.Name(), FLXName) {
+        // looking for /dev/flx* but not /dev/flx (soft link)
+        if strings.Contains(v.Name(), FLXName) && v.Name() != FLXName {
             fmt.Println(v.Name(),"contains flx")
             devs = append(devs, &pluginapi.Device {
                 ID: v.Name(),
@@ -132,7 +133,7 @@ func (l FLXLister) Discover(pluginListCh chan dpm.PluginNameList) {
 
     // Discover if there's at least flx0 
     // (it means driver is loaded and a flx pci endpoint is present)
-    var FLXDev = FLXPath + "flx0"
+    var FLXDev = FLXPath + FLXName
     if _, err := os.Stat(FLXDev); err == nil {
         glog.V(3).Infof("Discovered %s", FLXDev)
         fmt.Println("Discovered", FLXDev)
