@@ -1,3 +1,10 @@
+// enrico.gamberini@cern.ch April 2022
+// Copy-pasted stuff and documentation from:
+// https://github.com/kubevirt/device-plugin-manager
+// https://github.com/kubevirt/kubernetes-device-plugins/blob/master/pkg/kvm/kvm.go
+// https://github.com/kubevirt/kubernetes-device-plugins/blob/master/pkg/pci/plugin.go
+// and more... follow the links
+
 package main
 
 import (
@@ -84,8 +91,9 @@ func (p *Plugin) Allocate(ctx context.Context, r *pluginapi.AllocateRequest) (*p
         for _, id := range req.DevicesIDs {
             fmt.Println("Allocate id", id)
             dev := new(pluginapi.DeviceSpec)
-            dev.HostPath = "/dev/flx0" // TODO
-            dev.ContainerPath = "/dev/flx0" // TODO
+            fmt.Println("dev path", FLXPath + id)
+            dev.HostPath = FLXPath + id
+            dev.ContainerPath = FLXPath + id
             dev.Permissions = "rw"
             devices = append(devices, dev)
         }
