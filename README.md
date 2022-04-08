@@ -1,3 +1,11 @@
+### General info
+
+Discover and lists `/dev/flx*` devices. Handles allocation when `felix.cern/flx` resources are requested by K8s pods.
+
+Requires privileged access to `/dev` and `/var/lib/kubelet/device-plugins` in a K8s node.
+
+Based on the library https://github.com/kubevirt/device-plugin-manager
+
 ### Development cheat sheet
 
 ```
