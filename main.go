@@ -30,7 +30,7 @@ type Plugin struct{
 }
 
 const (
-    FLXPath           = "/dev/"
+    DevPath           = "/dev/"
     FLXName           = "flx"
     resourceNamespace = "felix.cern"
 )
@@ -49,22 +49,16 @@ const (
 // Whenever a Device state changes or a Device disappears, ListAndWatch
 // returns the new list
 func (p *Plugin) ListAndWatch(e *pluginapi.Empty, s pluginapi.DevicePlugin_ListAndWatchServer) error {
-    fmt.Println("ListAndWatch()")
+    fmt.Println("ListAndWatch()",p.name)
 
     var devs []*pluginapi.Device
 
-    f, _ := os.Open(FLXPath)
-    files, _ := f.Readdir(0)
-
-    for _, v := range files {
-        // looking for /dev/flx* but not /dev/flx (soft link)
-        if strings.Contains(v.Name(), FLXName) && v.Name() != FLXName {
-            fmt.Println(v.Name(),"contains flx")
-            devs = append(devs, &pluginapi.Device {
-                ID: v.Name(),
-                Health: pluginapi.Healthy,
-            })
-        }
+    var dev = DevPath + p.name
+    if _, err := os.Stat(dev); err == nil {
+        devs = append(devs, &pluginapi.Device {
+            ID: p.name,
+            Health: pluginapi.Healthy,
+        })
     }
 
     s.Send(&pluginapi.ListAndWatchResponse{Devices: devs})
@@ -91,9 +85,9 @@ func (p *Plugin) Allocate(ctx context.Context, r *pluginapi.AllocateRequest) (*p
         for _, id := range req.DevicesIDs {
             fmt.Println("Allocate id", id)
             dev := new(pluginapi.DeviceSpec)
-            fmt.Println("dev path", FLXPath + id)
-            dev.HostPath = FLXPath + id
-            dev.ContainerPath = FLXPath + id
+            fmt.Println("dev path", DevPath + id)
+            dev.HostPath = DevPath + id
+            dev.ContainerPath = DevPath + id
             dev.Permissions = "rw"
             devices = append(devices, dev)
         }
@@ -130,15 +124,18 @@ func (l FLXLister) Discover(pluginListCh chan dpm.PluginNameList) {
     fmt.Println("Discover()")
     var plugins = make(dpm.PluginNameList, 0)
 
-    // Discover if there's at least flx0 
-    // (it means driver is loaded and a flx pci endpoint is present)
-    var FLXDev = FLXPath + FLXName
-    if _, err := os.Stat(FLXDev); err == nil {
-        glog.V(3).Infof("Discovered %s", FLXDev)
-        fmt.Println("Discovered", FLXDev)
-        plugins = append(plugins, FLXName)
+    f, _ := os.Open(DevPath)
+    files, _ := f.Readdir(0)
+    for _, v := range files {
+        // looking for /dev/flx* but not /dev/flx (soft link)
+        if strings.Contains(v.Name(), FLXName) && v.Name() != FLXName {
+            fmt.Println(v.Name(),"contains flx")
+            plugins = append(plugins, v.Name())
+        } else if strings.Contains(v.Name(), "cmem_rcc") {
+            fmt.Println(v.Name(),"contains cmem_rcc")
+            plugins = append(plugins, v.Name())
+        }
     }
-
     pluginListCh <- plugins
 }
 
