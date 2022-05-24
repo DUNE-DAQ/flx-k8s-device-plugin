@@ -10,11 +10,10 @@ import (
     "os"
     "flag"
     "fmt"
-    //"strconv"
+    "strconv"
     "strings"
 
     "golang.org/x/net/context"
-    "github.com/golang/glog"
     "github.com/kubevirt/device-plugin-manager/pkg/dpm"
     pluginapi "k8s.io/kubelet/pkg/apis/deviceplugin/v1beta1"
 )
@@ -30,7 +29,7 @@ type Plugin struct{
 }
 
 const (
-    FLXPath           = "/dev/"
+    DevPath           = "/dev/"
     FLXName           = "flx"
     resourceNamespace = "felix.cern"
 )
@@ -49,19 +48,16 @@ const (
 // Whenever a Device state changes or a Device disappears, ListAndWatch
 // returns the new list
 func (p *Plugin) ListAndWatch(e *pluginapi.Empty, s pluginapi.DevicePlugin_ListAndWatchServer) error {
-    fmt.Println("ListAndWatch()")
+    fmt.Println("ListAndWatch()", p.name)
 
     var devs []*pluginapi.Device
 
-    f, _ := os.Open(FLXPath)
-    files, _ := f.Readdir(0)
-
-    for _, v := range files {
-        // looking for /dev/flx* but not /dev/flx (soft link)
-        if strings.Contains(v.Name(), FLXName) && v.Name() != FLXName {
-            fmt.Println(v.Name(),"contains flx")
+    var dev0 = DevPath + "flx0"
+    var dev1 = DevPath + "flx1"
+    if _, err0 := os.Stat(dev0); err0 == nil {
+        if _, err1 := os.Stat(dev1); err1 == nil {
             devs = append(devs, &pluginapi.Device {
-                ID: v.Name(),
+                ID: "flx0",
                 Health: pluginapi.Healthy,
             })
         }
@@ -82,7 +78,7 @@ func (p *Plugin) ListAndWatch(e *pluginapi.Empty, s pluginapi.DevicePlugin_ListA
 // Plugin can run device specific operations and instruct Kubelet
 // of the steps to make the Device available in the container
 func (p *Plugin) Allocate(ctx context.Context, r *pluginapi.AllocateRequest) (*pluginapi.AllocateResponse, error) {
-    fmt.Println("Allocate()")
+    fmt.Println("Allocate()", p.name)
 
     var response pluginapi.AllocateResponse
 
@@ -90,12 +86,22 @@ func (p *Plugin) Allocate(ctx context.Context, r *pluginapi.AllocateRequest) (*p
         var devices []*pluginapi.DeviceSpec
         for _, id := range req.DevicesIDs {
             fmt.Println("Allocate id", id)
-            dev := new(pluginapi.DeviceSpec)
-            fmt.Println("dev path", FLXPath + id)
-            dev.HostPath = FLXPath + id
-            dev.ContainerPath = FLXPath + id
-            dev.Permissions = "rw"
-            devices = append(devices, dev)
+            dev0 := new(pluginapi.DeviceSpec)
+            fmt.Println("dev path", DevPath + id)
+            dev0.HostPath = DevPath + id
+            dev0.ContainerPath = DevPath + id
+            dev0.Permissions = "rw"
+            devices = append(devices, dev0)
+            dev1 := new(pluginapi.DeviceSpec)
+            dev1.HostPath = DevPath + "flx1"
+            dev1.ContainerPath = DevPath + "flx1"
+            dev1.Permissions = "rw"
+            devices = append(devices, dev1)
+            devmem := new(pluginapi.DeviceSpec)
+            devmem.HostPath = DevPath + "cmem_rcc"
+            devmem.ContainerPath = DevPath + "cmem_rcc"
+            devmem.Permissions = "rw"
+            devices = append(devices, devmem)
         }
         response.ContainerResponses = append(response.ContainerResponses, &pluginapi.ContainerAllocateResponse{
 			Devices: devices})
@@ -126,24 +132,29 @@ func (l FLXLister) GetResourceNamespace() string {
 
 // Discovery discovers all devices within the system. Monitors available resources.
 func (l FLXLister) Discover(pluginListCh chan dpm.PluginNameList) {
-    glog.V(3).Infof("Discover()")
     fmt.Println("Discover()")
     var plugins = make(dpm.PluginNameList, 0)
 
-    // Discover if there's at least flx0 
-    // (it means driver is loaded and a flx pci endpoint is present)
-    var FLXDev = FLXPath + FLXName
-    if _, err := os.Stat(FLXDev); err == nil {
-        glog.V(3).Infof("Discovered %s", FLXDev)
-        fmt.Println("Discovered", FLXDev)
-        plugins = append(plugins, FLXName)
+    f, _ := os.Open(DevPath)
+    files, _ := f.Readdir(0)
+    var count = 0
+    for _, v := range files {
+        // looking for /dev/flx* but not /dev/flx (soft link)
+        if strings.Contains(v.Name(), FLXName) && v.Name() != FLXName {
+            fmt.Println(v.Name(),"contains flx")
+            count = count + 1
+        }
+    }
+    fmt.Println("flx count", count)
+    for i := 0; i < count; i+=2 {
+        fmt.Println(i)
+        plugins = append(plugins, FLXName + strconv.Itoa(i))
     }
 
     pluginListCh <- plugins
 }
 
 func (l FLXLister) NewPlugin(name string) dpm.PluginInterface {
-    glog.V(3).Infof("NewPlugin()")
     fmt.Println("NewPlugin()", name)
     return &Plugin{
         name: name,
