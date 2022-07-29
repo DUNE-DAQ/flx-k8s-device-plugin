@@ -14,6 +14,17 @@ spec:
       labels:
         name: felix-plugin
     spec:
+      initContainers:
+      - name: flx-driver
+        image: egamberini/flx-drv:latest
+        securityContext:
+          privileged: true
+        volumeMounts:
+          - name: devfs
+            mountPath: /dev
+          - name: opt
+            mountPath: /opt/felix/drivers_rcc
+            readOnly: true
       containers:
       - name: felix-plugin
         image: egamberini/flx-dev-plugin:latest
@@ -33,4 +44,8 @@ spec:
       - name: kubeletsockets
         hostPath:
           path: /var/lib/kubelet/device-plugins
+      - name: opt
+        hostPath:
+          path: /opt/felix/drivers_rcc
+        
 
