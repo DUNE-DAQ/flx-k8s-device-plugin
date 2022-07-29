@@ -11,7 +11,7 @@ Based on the library https://github.com/kubevirt/device-plugin-manager
 ### Development cheat sheet
 
 ```
-sudo docker run -it --rm --name flx-dev-plugin -v /dev:/dev -v /var/lib/kubelet/device-plugins/:/var/lib/kubelet/device-plugins/ -v .../flx-dev-plugin:/usr/src/app egamberini/flx-dev-plugin:latest /bin/sh
+sudo docker run -it --rm --name flx-dev-plugin -v /dev:/dev -v /var/lib/kubelet/device-plugins/:/var/lib/kubelet/device-plugins/ -v <abs_path>/flx-dev-plugin:/usr/src/app egamberini/flx-dev-plugin:latest /bin/sh
 ```
 
 Inside container:
