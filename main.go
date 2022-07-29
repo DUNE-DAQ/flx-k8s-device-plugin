@@ -148,7 +148,8 @@ func (l FLXLister) Discover(pluginListCh chan dpm.PluginNameList) {
     fmt.Println("flx count", count)
     for i := 0; i < count; i+=2 {
         fmt.Println(i)
-        plugins = append(plugins, FLXName + strconv.Itoa(i))
+        plugins = append(plugins, FLXName + strconv.Itoa(i) + "-data")
+        plugins = append(plugins, FLXName + strconv.Itoa(i) + "-ctrl")
     }
 
     pluginListCh <- plugins
