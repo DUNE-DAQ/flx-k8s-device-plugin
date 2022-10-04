@@ -1,18 +1,18 @@
 apiVersion: apps/v1
 kind: DaemonSet
 metadata:
-  name: felix-plugin
-  namespace: felix-test
+  name: flx-plugin
+  namespace: felix
   labels:
-    app: felix-plugin
+    app: flx-plugin
 spec:
   selector:
     matchLabels:
-      name: felix-plugin
+      name: flx-plugin
   template:
     metadata:
       labels:
-        name: felix-plugin
+        name: flx-plugin
     spec:
       initContainers:
       - name: flx-driver
@@ -26,15 +26,13 @@ spec:
             mountPath: /opt/felix/drivers_rcc
             readOnly: true
       containers:
-      - name: felix-plugin
+      - name: flx-plugin
         image: egamberini/flx-dev-plugin:latest
         securityContext:
           allowPrivilegeEscalation: false
-          #readOnlyRootFilesystem: true
         volumeMounts:
         - name: devfs
           mountPath: /dev
-          #readOnly: true
         - name: kubeletsockets
           mountPath: /var/lib/kubelet/device-plugins
       volumes:
