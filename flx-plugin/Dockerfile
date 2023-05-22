@@ -1,4 +1,4 @@
-FROM golang:1.17
+FROM golang:1.17 AS builder
 
 WORKDIR /usr/src/app
 
@@ -13,6 +13,10 @@ COPY go.mod go.sum ./
 RUN go mod download && go mod verify
 
 COPY main.go ./
+ENV CGO_ENABLED=0 
 RUN go build -v -o /usr/local/bin/app ./main.go
+
+FROM alpine:3.18.0 as baseImage
+COPY --from=builder /usr/local/bin/app /usr/local/bin/app
 
 CMD ["app"]
