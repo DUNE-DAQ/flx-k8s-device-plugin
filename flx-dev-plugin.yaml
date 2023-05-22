@@ -16,7 +16,7 @@ spec:
     spec:
       initContainers:
       - name: flx-driver
-        image: egamberini/flx-drv:latest
+        image: np04docker.cern.ch/dunedaq-local/flx-driver:v0.1
         securityContext:
           privileged: true
         volumeMounts:
@@ -27,7 +27,7 @@ spec:
             readOnly: true
       containers:
       - name: flx-plugin
-        image: egamberini/flx-dev-plugin:latest
+        image: np04docker.cern.ch/dunedaq-local/flx-plugin:v0.1
         securityContext:
           allowPrivilegeEscalation: false
         volumeMounts:
