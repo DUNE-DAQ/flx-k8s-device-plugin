@@ -16,7 +16,7 @@ spec:
     spec:
       initContainers:
       - name: flx-driver
-        image: np04docker.cern.ch/dunedaq-local/flx-driver:v0.1
+        image: np04docker.cern.ch/dunedaq-local/flx-driver:v0.3
         securityContext:
           privileged: true
         volumeMounts:
