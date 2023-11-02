@@ -111,7 +111,7 @@ func (p *Plugin) Allocate(ctx context.Context, r *pluginapi.AllocateRequest) (*p
 }
 
 // GetDevicePluginOptions returns options to be communicated with Device Manager
-func (Plugin) GetDevicePluginOptions(context.Context, *pluginapi.Empty) (*pluginapi.DevicePluginOptions, error) {
+func (p* Plugin) GetDevicePluginOptions(context.Context, *pluginapi.Empty) (*pluginapi.DevicePluginOptions, error) {
     fmt.Println("GetDevicePluginOptions()", p.name)
 
     return nil, nil
@@ -120,17 +120,20 @@ func (Plugin) GetDevicePluginOptions(context.Context, *pluginapi.Empty) (*plugin
 // PreStartContainer is called, if indicated by Device Plugin during registeration phase,
 // before each container start. Device plugin can run device specific operations
 // such as reseting the device before making devices available to the container
-func (Plugin) PreStartContainer(context.Context, *pluginapi.PreStartContainerRequest) (*pluginapi.PreStartContainerResponse, error) {
+func (p* Plugin) PreStartContainer(context.Context, *pluginapi.PreStartContainerRequest) (*pluginapi.PreStartContainerResponse, error) {
     fmt.Println("GetDevicePluginOptions()", p.name)
 
     return nil, nil
 }
 
-func (dp *Plugin) GetPreferredAllocation(ctx context.Context, request *pluginapi.PreferredAllocationRequest) (*pluginapi.PreferredAllocationResponse, error) {
+func (p *Plugin) GetPreferredAllocation(ctx context.Context, request *pluginapi.PreferredAllocationRequest) (*pluginapi.PreferredAllocationResponse, error) {
+    fmt.Println("GetPreferredAllocation()", p.name)
+
     return nil, nil
 }
 
 func (l FLXLister) GetResourceNamespace() string {
+    fmt.Println("GetResourceNamespace()")
     return resourceNamespace
 }
 
