@@ -114,7 +114,7 @@ func (p *Plugin) Allocate(ctx context.Context, r *pluginapi.AllocateRequest) (*p
 func (p* Plugin) GetDevicePluginOptions(context.Context, *pluginapi.Empty) (*pluginapi.DevicePluginOptions, error) {
     fmt.Println("GetDevicePluginOptions()", p.name)
 
-    return nil, nil
+    return &v1beta1.DevicePluginOptions{}, nil
 }
 
 // PreStartContainer is called, if indicated by Device Plugin during registeration phase,
@@ -123,13 +123,13 @@ func (p* Plugin) GetDevicePluginOptions(context.Context, *pluginapi.Empty) (*plu
 func (p* Plugin) PreStartContainer(context.Context, *pluginapi.PreStartContainerRequest) (*pluginapi.PreStartContainerResponse, error) {
     fmt.Println("GetDevicePluginOptions()", p.name)
 
-    return nil, nil
+    return &v1beta1.PreStartContainerResponse{}, nil
 }
 
 func (p *Plugin) GetPreferredAllocation(ctx context.Context, request *pluginapi.PreferredAllocationRequest) (*pluginapi.PreferredAllocationResponse, error) {
     fmt.Println("GetPreferredAllocation()", p.name)
 
-    return nil, nil
+    return &v1beta1.PreferredAllocationResponse{}, nil
 }
 
 func (l FLXLister) GetResourceNamespace() string {
