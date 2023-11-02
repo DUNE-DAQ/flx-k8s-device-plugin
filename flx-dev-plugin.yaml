@@ -16,7 +16,7 @@ spec:
     spec:
       initContainers:
       - name: flx-driver
-        image: np04docker.cern.ch/dunedaq-local/flx-driver:v0.3
+        image: np04docker.cern.ch/ghcr/dune-daq/flx-init-driver-alma9:latest
         securityContext:
           privileged: true
         volumeMounts:
@@ -27,7 +27,7 @@ spec:
             readOnly: true
       containers:
       - name: flx-plugin
-        image: np04docker.cern.ch/dunedaq-local/flx-plugin:v0.3
+        image: np04docker.cern.ch/ghcr/dune-daq/flx-device-plugin:latest
         securityContext:
           allowPrivilegeEscalation: false
         volumeMounts:
