@@ -51,7 +51,7 @@ jobs:
           build_dir="${{ github.workspace }}/docker-build"
           mkdir -p $build_dir
           cd $build_dir
-          cp ${{ github.workspace }}/flx-k8s-device-plugin/flx-plugin/Dockerfile $build_dir/Dockerfile
+          cp ${{ github.workspace }}/flx-k8s-device-plugin/flx-plugin/* $build_dir
       
       - name: Build and push Docker images
         uses: docker/build-push-action@v3
