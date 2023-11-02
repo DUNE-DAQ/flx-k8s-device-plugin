@@ -15,7 +15,8 @@ import (
 
     "golang.org/x/net/context"
     "github.com/kubevirt/device-plugin-manager/pkg/dpm"
-    pluginapi "k8s.io/kubelet/pkg/apis/deviceplugin/v1beta1"
+	"k8s.io/kubelet/pkg/apis/deviceplugin/v1beta1"
+    // pluginapi "k8s.io/kubelet/pkg/apis/deviceplugin/v1beta1"
 )
 
 // FLXLister is the object responsible for discovering initial pool of devices and their allocation
