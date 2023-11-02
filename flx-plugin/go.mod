@@ -3,15 +3,14 @@ module flx-dev-plugin
 go 1.21
 
 require (
-	github.com/kubevirt/device-plugin-manager v1.19.4
+	github.com/kubevirt/device-plugin-manager v1.19.5
 	golang.org/x/net v0.17.0
-	k8s.io/api v0.25.2
-	k8s.io/apimachinery v0.25.2
-	k8s.io/kubelet v0.25.2
+	k8s.io/kubelet v0.28.3
 )
 
 require (
 	github.com/fsnotify/fsnotify v1.7.0 // indirect
+	github.com/gogo/protobuf v1.3.2 // indirect
 	github.com/golang/glog v1.1.2 // indirect
 	github.com/golang/protobuf v1.5.3 // indirect
 	golang.org/x/sys v0.13.0 // indirect
