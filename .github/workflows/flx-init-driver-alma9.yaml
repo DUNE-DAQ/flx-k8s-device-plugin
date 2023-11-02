@@ -1,4 +1,4 @@
-name: Build alma9 docker image
+name: Build alma9 felix init driver image
 
 on:
   schedule:

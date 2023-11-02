@@ -1,4 +1,4 @@
-name: Build alma9 docker image
+name: Build k8s device plugin image
 
 on:
   schedule:
