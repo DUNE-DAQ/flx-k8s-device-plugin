@@ -1,6 +1,6 @@
 module flx-dev-plugin
 
-go 1.17
+go 1.21
 
 require (
 	github.com/golang/glog v1.1.2
