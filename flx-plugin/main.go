@@ -47,7 +47,7 @@ const (
 // ListAndWatch returns a stream of List of Devices
 // Whenever a Device state changes or a Device disappears, ListAndWatch
 // returns the new list
-func (p *Plugin) ListAndWatch(e *pluginapi.Empty, s pluginapi.DevicePlugin_ListAndWatchServer) error {
+func (p *Plugin) ListAndWatch(e *pluginapi.Empty, s pluginapi.x``) error {
     fmt.Println("ListAndWatch()", p.name)
 
     var devs []*pluginapi.Device
@@ -112,6 +112,8 @@ func (p *Plugin) Allocate(ctx context.Context, r *pluginapi.AllocateRequest) (*p
 
 // GetDevicePluginOptions returns options to be communicated with Device Manager
 func (Plugin) GetDevicePluginOptions(context.Context, *pluginapi.Empty) (*pluginapi.DevicePluginOptions, error) {
+    fmt.Println("GetDevicePluginOptions()", p.name)
+
     return nil, nil
 }
 
@@ -119,6 +121,8 @@ func (Plugin) GetDevicePluginOptions(context.Context, *pluginapi.Empty) (*plugin
 // before each container start. Device plugin can run device specific operations
 // such as reseting the device before making devices available to the container
 func (Plugin) PreStartContainer(context.Context, *pluginapi.PreStartContainerRequest) (*pluginapi.PreStartContainerResponse, error) {
+    fmt.Println("GetDevicePluginOptions()", p.name)
+
     return nil, nil
 }
 
