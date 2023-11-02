@@ -52,6 +52,7 @@ jobs:
           mkdir -p $build_dir
           cd $build_dir
           cp ${{ github.workspace }}/flx-k8s-device-plugin/flx-driver/alma9.dockerfile $build_dir/Dockerfile
+          cp ${{ github.workspace }}/flx-k8s-device-plugin/flx-driver/entrypoint.sh $build_dir
       
       - name: Build and push Docker images
         uses: docker/build-push-action@v3
