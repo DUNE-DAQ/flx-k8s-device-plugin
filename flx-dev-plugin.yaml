@@ -1,3 +1,4 @@
+---
 apiVersion: apps/v1
 kind: DaemonSet
 metadata:
@@ -5,14 +6,20 @@ metadata:
   namespace: felix
   labels:
     app: flx-plugin
+    app.kubernetes.io/app: flx-plugin
+    app.kubernetes.io/component: flx-plugin
 spec:
   selector:
     matchLabels:
       name: flx-plugin
+      app.kubernetes.io/app: flx-plugin
+      app.kubernetes.io/component: flx-plugin
   template:
     metadata:
       labels:
         name: flx-plugin
+        app.kubernetes.io/app: flx-plugin
+        app.kubernetes.io/component: flx-plugin
     spec:
       initContainers:
       - name: flx-driver
@@ -45,5 +52,3 @@ spec:
       - name: opt
         hostPath:
           path: /opt/felix/drivers_rcc
-        
-
