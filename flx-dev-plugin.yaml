@@ -21,11 +21,13 @@ spec:
         app.kubernetes.io/app: flx-plugin
         app.kubernetes.io/component: flx-plugin
     spec:
+      hostUsers: true
       initContainers:
       - name: flx-driver
         image: ghcr.io/dune-daq/flx-init-driver-alma9:latest
         securityContext:
           privileged: true
+          runAsNonRoot: false
         volumeMounts:
           - name: devfs
             mountPath: /dev
@@ -36,6 +38,7 @@ spec:
       - name: flx-plugin
         image: ghcr.io/dune-daq/flx-device-plugin:latest
         securityContext:
+          runAsNonRoot: false
           allowPrivilegeEscalation: false
         volumeMounts:
         - name: devfs
